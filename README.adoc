@@ -1,0 +1,49 @@
+= Service Status Checker
+
+== Building
+
+To launch tests:
+```
+./gradlew clean test
+```
+
+To package the application:
+```
+./gradlew clean assemble
+```
+
+To run the application:
+```
+./gradlew clean run
+```
+
+== Overview
+The app aims to maintain services status refreshed, utilizing an asynchronous mechanism, a background verticle has a job
+to fetch all services each one minute, then for all service, it checks the status by pinging it's URL, then, if change
+detected, it publishes to the eventbus.
+Another verticle is registered to the eventbus to consume and process to all the updates, then updates the service's new state in the
+database.
+
+=== Notes
+** Implemented features
+    - A user need to be able to add a new service with url, a name
+    - Added services have to be kept when the server is restarted
+    - Present whenever a service was added and when the last change was
+made
+** Assumptions
+    - The services list is not huge (can be processed within one minute to avoid overlapping).
+    - Not considered multiuser handling.
+    - Only the `create service`, `get all services` endpoints are implemented for the user.
+    - Used multiple verticles to maintain concurrency (one for ping, one for db update).
+    - The results from the poller are not automatically shown to the user (you have to reload the page to see results)
+** Persistence
+    - Sqlite is used for persistence operations
+    - Database is initialized programmatically
+    - Database file is created in a file `poller.db`
+    - Database creation should be done before running the application `DatabaseCreation.java`
+** UI
+    - ReactJs page with services information and `add service` capability.
+    - To run the UI cd to frontend then
+```
+npm start
+```
